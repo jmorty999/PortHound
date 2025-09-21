@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PortHound Web</title>
+<style>
+body { font-family: Arial; padding: 20px; }
+button { padding: 10px 20px; margin-top: 10px; }
+#results { margin-top: 20px; }
+</style>
+</head>
+<body>
+<h1>PortHound Web</h1>
+<form id="scanForm">
+    Target IP / Hostname: <input type="text" name="target" value="127.0.0.1"><br>
+    Ports (ex: 22,80,443): <input type="text" name="ports" value="22,80,443"><br>
+    <button type="submit">Scan</button>
+</form>
+<div id="results"></div>
+
+<script>
+document.getElementById("scanForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const response = await fetch("/scan", { method: "POST", body: formData });
+    const data = await response.json();
+
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = `<h2>Résultats pour ${data.target}</h2>`;
+    if(data.results.length === 0){
+        resultsDiv.innerHTML += "<p>Aucun port ouvert trouvé.</p>";
+    } else {
+        data.results.forEach(r => {
+            resultsDiv.innerHTML += `<p>Port ${r.port} ouvert - Banner: ${r.banner || "N/A"}</p>`;
+        });
+    }
+});
+</script>
+</body>
+</html>
